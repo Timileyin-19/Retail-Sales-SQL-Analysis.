@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="UTF-8"?><sqlb_project><db path="sql cleaning.db" readonly="0" foreign_keys="1" case_sensitive_like="0" temp_store="0" wal_autocheckpoint="1000" synchronous="2"/><attached/><window><main_tabs open="structure browser pragmas query" current="3"/></window><tab_structure><column_width id="0" width="300"/><column_width id="1" width="0"/><column_width id="2" width="100"/><column_width id="3" width="1142"/><column_width id="4" width="0"/><expanded_item id="0" parent="1"/><expanded_item id="1" parent="1"/><expanded_item id="2" parent="1"/><expanded_item id="3" parent="1"/></tab_structure><tab_browse><table title="Sales cleaning" custom_title="0" dock_id="1" table="4,14:mainSales cleaning"/><dock_state state="000000ff00000000fd00000001000000020000039100000260fc0100000001fb000000160064006f0063006b00420072006f00770073006500310100000000000003910000011e00ffffff000003910000000000000004000000040000000800000008fc00000000"/><default_encoding codec=""/><browse_table_settings><table schema="main" name="Sales cleaning" show_row_id="0" encoding="" plot_x_axis="" unlock_view_pk="_rowid_" freeze_columns="0"><sort/><column_widths><column index="1" value="88"/><column index="2" value="87"/><column index="3" value="79"/><column index="4" value="55"/><column index="5" value="76"/><column index="6" value="80"/><column index="7" value="119"/><column index="8" value="82"/></column_widths><filter_values/><conditional_formats/><row_id_formats/><display_formats/><hidden_columns/><plot_y_axes/><global_filter/></table></browse_table_settings></tab_browse><tab_sql><sql name="SQL 1*">-- CHECKING ALL THE COLUMNIN THE DATA SET
+PRAGMA table_info (&quot;Sales cleaning&quot;);
+
+-- REMOVING DUPLICATE
+SELECT *,
+COUNT(*) AS duplicate_count
+FROM &quot;Sales cleaning&quot;
+GROUP BY TransactionID,date,CustomerID,StoreID,EmployeeID,PromotionID,PaymentMethod,TotalAmount
+HAVING COUNT(*) &gt; 1;
+
+CREATE TABLE &quot;Sales cleaning_backup&quot; AS
+SELECT *
+FROM &quot;Sales cleaning&quot;;
+
+SELECT COUNT(*) AS total_rows
+FROM &quot;Sales cleaning&quot;;
+
+-- DATA CLEANING
+DELETE FROM &quot;Sales cleaning&quot;
+WHERE ROWID NOT IN (
+SELECT MIN (ROWID)
+FROM &quot;Sales cleaning&quot; 
+GROUP BY TransactionID,date,CustomerID,StoreID,EmployeeID,PromotionID,PaymentMethod,TotalAmount);
+
+-- DATA CLEANING
+SELECT *
+FROM &quot;Sales cleaning&quot;
+WHERE TransactionID = '#N/A'
+OR Date = '#N/A'
+OR CustomerID = '#N/A'
+OR StoreID = '#N/A'
+OR EmployeeID = '#N/A'
+OR PromotionID = '#N/A'
+OR PaymentMethod = '#N/A'
+OR TotalAmount = '#N/A';
+
+UPDATE &quot;Sales cleaning&quot;
+SET PromotionID = NULL
+WHERE PromotionID = '#N/A';
+
+UPDATE &quot;Sales cleaning&quot;
+SET date = NULL
+WHERE date = '#N/A';
+
+UPDATE &quot;Sales cleaning&quot;
+SET PromotionID = NULL
+WHERE PromotionID = '#N/A';
+
+UPDATE &quot;Sales cleaning&quot;
+SET CustomerID = NULL
+WHERE CustomerID = '#N/A';
+
+UPDATE &quot;Sales cleaning&quot;
+SET StoreID = NULL
+WHERE StoreID= '#N/A';
+
+UPDATE &quot;Sales cleaning&quot;
+SET EmployeeID= NULL
+WHERE EmployeeID = '#N/A';
+
+UPDATE &quot;Sales cleaning&quot;
+SET PaymentMethod= NULL
+WHERE PaymentMethod= '#N/A';
+
+UPDATE &quot;Sales cleaning&quot;
+SET TotalAmount = NULL
+WHERE TotalAmount = '#N/A';
+
+UPDATE &quot;Sales cleaning&quot;
+SET TransactionID= NULL
+WHERE TransactionID = '#N/A';
+
+SELECT DISTINCT PaymentMethod
+FROM &quot;Sales cleaning&quot;;
+
+-- WHAT IS THE TOTAL AMOUNT OF SALES
+SELECT SUM(TotalAmount) AS Total_sold
+FROM &quot;Sales cleaning&quot;;
+
+--WHICH STORE GENERATED MOST SALES?
+SELECT StoreID,SUM(TotalAmount) AS Total_sales
+FROM &quot;Sales cleaning&quot;
+GROUP BY StoreID
+ORDER BY Total_sales DESC;
+
+--WHICH PAYMENT METHOS IS USED MOST?
+SELECT PaymentMethod,SUM(TotalAmount) AS Total_sales
+FROM &quot;Sales cleaning&quot;
+GROUP BY PaymentMethod
+ORDER BY Total_sales DESC;
+
+--HOW MUCH WAS SOLD OVER TIME?
+SELECT strftime('%Y', Date) AS Year,
+SUM(TotalAmount) AS Total_sold
+FROM &quot;Sales cleaning&quot;
+GROUP BY Year
+ORDER BY Year ASC;
+
+-- WHICH EMPLOYEES HANDLED THE MOST TRANSACTION
+SELECT EmployeeID,count(TransactionID) AS Most_transactiom
+FROM &quot;Sales cleaning&quot;
+GROUP BY EmployeeID
+ORDER BY Most_transactiom DESC;
+
+--HOW DON PROMOTION AFFECTS SALES
+SELECT PromotionID, SUM(TotalAmount) as sales
+FROM &quot;Sales cleaning&quot;
+GROUP BY PromotionID
+ORDER BY Sales DESC;
+
+--HOW MANY TRANSACTIONS ARE THERE?
+SELECT COUNT(*) AS Total_Transaction
+FROM &quot;Sales cleaning&quot;;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</sql><current_tab id="0"/></tab_sql></sqlb_project>
